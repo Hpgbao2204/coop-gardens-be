@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"coop-gardens-be/config"
 	"coop-gardens-be/internal/api/routers"
@@ -12,10 +13,17 @@ import (
 
 func main() {
 	// Load .env
-	err := godotenv.Load()
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "production" {
+		err := godotenv.Load("/opt/secrets/.env")
+		if err != nil {
+			log.Fatal("Error deploy loading .env file")
+		}
+	} else {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
 	e := echo.New()
