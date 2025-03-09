@@ -1,11 +1,17 @@
+# Sử dụng Golang với Alpine để build nhẹ hơn
 FROM golang:alpine AS builder
 
-RUN mkdir /app
-
-ADD . /app
-
+# Đặt thư mục làm việc
 WORKDIR /app
 
-RUN go build -o main main.go
+# Copy toàn bộ source code vào container
+COPY . .
 
-CMD ["."]
+# Lấy dependencies và build ứng dụng
+RUN go mod tidy && go build -o main main.go
+
+# Đảm bảo file có quyền thực thi
+RUN chmod +x /app/main
+
+# Chạy ứng dụng
+CMD ["/app/main"]
