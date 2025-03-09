@@ -4,21 +4,12 @@ import (
 	"log"
 
 	"coop-gardens-be/config"
-	_ "coop-gardens-be/docs"
 	"coop-gardens-be/internal/api/routers"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
-// @title Swagger API Test
-// @version 1.0
-// @description This is a sample API Coop-Gardens server.
-// @host localhost:8080
-// @BasePath /api/v1
-
-// @host localhost:8080
-// @BasePath /v1
 func main() {
 	// Load .env
 	err := godotenv.Load()
@@ -28,6 +19,10 @@ func main() {
 	}
 
 	e := echo.New()
+
+	e.GET("/", func(c echo.Context) error {
+		return c.String(200, "Hello, World!")
+	})
 
 	// Group API v1
 	apiV1 := e.Group("/api/v1")

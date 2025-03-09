@@ -19,12 +19,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies (FE)
-        working-directory:  "../../coop-gardens-fe"
         run: npm install
 
       - # 4️⃣ Chạy ESLint kiểm tra code FE
       - name: Run ESLint (FE)
-        working-directory: "../../coop-gardens-fe"
         run: npm run lint
 
       - name: Archive build
