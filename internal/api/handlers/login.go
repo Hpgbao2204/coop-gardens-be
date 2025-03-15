@@ -7,6 +7,7 @@ import (
 	"coop-gardens-be/usecase"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type LoginRequest struct {
@@ -24,7 +25,8 @@ func Login(c echo.Context) error {
 
 	log.Println("Login attempt for:", req.Email)
 
-	token, err := usecase.Login(req.Email, req.Password)
+	db := c.Get("db").(*gorm.DB)
+	token, err := usecase.Login(db, req.Email, req.Password)
 	if err != nil {
 		log.Println("Login failed:", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})

@@ -19,6 +19,10 @@ type UserRepository interface {
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
 	HandleForgotPassword(ctx context.Context, email string) error
 	UpdateUserPassword(ctx context.Context, userId int64, currentPassword string, newPassword string) error
+	DeleteUser(ctx context.Context, userId int64) error
+	CreateUser(ctx context.Context, user *models.User) error
+	GetUserByID(ctx context.Context, id int64) (models.User, error)
+	UpdateUser(ctx context.Context, user *models.User) error
 }
 
 type UserRepositoryImpl struct {
@@ -170,6 +174,64 @@ func (u *UserRepositoryImpl) CreateUser(ctx context.Context, user *models.User) 
 	if result.Error != nil {
 		log.Printf("Failed to create user, error: %v", result.Error)
 		return result.Error
+	}
+
+	return nil
+}
+
+func (u *UserRepositoryImpl) GetUserByID(ctx context.Context, id int64) (models.User, error) {
+	// Set a timeout for the operation
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	// Define a variable to hold the result
+	var user models.User
+
+	// Query the database
+	result := u.db.WithContext(ctx).First(&user, id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			log.Printf("No user found with ID: %d", id)
+			return user, result.Error
+		}
+		log.Printf("Failed to fetch user with ID: %d, error: %v", id, result.Error)
+		return user, result.Error
+	}
+
+	return user, nil
+}
+
+// UpdateUser information
+func (u *UserRepositoryImpl) UpdateUser(ctx context.Context, user *models.User) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var existingUser models.User
+	if err := u.db.WithContext(ctx).First(&existingUser, user.ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("No user found with ID: %d", user.ID)
+			return err
+		}
+		log.Printf("Failed to fetch user with ID: %d, error: %v", user.ID, err)
+		return err
+	}
+
+	// Update fields
+	existingUser.Email = user.Email
+	existingUser.Username = user.Username
+
+	if user.Password != "" {
+		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Printf("Failed to hash password: %v", err)
+			return err
+		}
+		existingUser.Password = string(encryptedPassword)
+	}
+
+	if err := u.db.WithContext(ctx).Save(&existingUser).Error; err != nil {
+		log.Printf("Failed to update user with ID: %d, error: %v", user.ID, err)
+		return err
 	}
 
 	return nil
