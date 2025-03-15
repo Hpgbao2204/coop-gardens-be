@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	_ "errors"
 	_ "os"
@@ -9,10 +10,12 @@ import (
 	"coop-gardens-be/internal/repository"
 
 	_ "golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-func Login(email, password string) (string, error) {
-	user, err := repository.GetUserByEmail(email)
+func Login(db *gorm.DB, email, password string) (string, error) {
+	ctx := context.Background()
+	user, err := repository.NewUserRepository(db).GetUserByEmail(ctx, email)
 
 	if err != nil {
 		return "", err

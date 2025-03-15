@@ -14,16 +14,14 @@ import (
 func main() {
 	// Load .env
 
-	if os.Getenv("RAILWAY_ENVIRONMENT") == "production" {
-		err := godotenv.Load("/opt/secrets/.env")
-		if err != nil {
-			log.Fatal("Error deploy loading .env file")
-		}
-	} else {
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
+		log.Println("⚠️ Đang chạy local, load .env file")
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatal("Error loading .env file")
 		}
+	} else {
+		log.Println("🚀 Chạy trên Railway, sử dụng biến môi trường hệ thống")
 	}
 
 	e := echo.New()
