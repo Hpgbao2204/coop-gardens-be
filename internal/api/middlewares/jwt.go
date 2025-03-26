@@ -1,49 +1,40 @@
 package middlewares
 
 import (
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
 )
 
-var secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
-
-type Claims struct {
-	ID    int64  `json:"id"`
-	Email string `json:"email"`
-	jwt.RegisteredClaims
-}
-
-// Generate token
-func GenerateToken(id int64, username, email string) (string, error) {
-	claims := Claims{
-		id,
-		email,
-		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
+// Tạo token JWT
+func GenerateJWT(userID string) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Hết hạn sau 72 giờ
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString(secretKey)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
-// Parse token
-func ParseToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
-	})
+// Middleware xác thực JWT
+func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		tokenString := c.Request().Header.Get("Authorization")
+		if tokenString == "" {
+			return c.JSON(http.StatusUnauthorized, "Missing token")
+		}
 
-	if err != nil {
-		return nil, err
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(os.Getenv("JWT_SECRET")), nil
+		})
+
+		if err != nil || !token.Valid {
+			return c.JSON(http.StatusUnauthorized, "Invalid token")
+		}
+
+		return next(c)
 	}
-
-	if claims, olk := token.Claims.(*Claims); olk && token.Valid {
-		return claims, nil
-	}
-
-	return nil, jwt.ErrSignatureInvalid
 }
