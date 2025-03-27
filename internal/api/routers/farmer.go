@@ -22,7 +22,7 @@ func FarmerRoutes(g *echo.Group, userRepo *repository.UserRepository) {
 	// Farmer specific endpoints
 	g.GET("/products", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
-			"message": "Farmer products",
+			"message": "Farmer products con cac",
 		})
 	})
 }
