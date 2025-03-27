@@ -2,43 +2,35 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"coop-gardens-be/config"
+	"coop-gardens-be/internal/api/handlers"
 	"coop-gardens-be/internal/api/routers"
+	"coop-gardens-be/internal/repository"
+	"coop-gardens-be/internal/usecase"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	// Load .env
-
-	if os.Getenv("RAILWAY_ENVIRONMENT") == "production" {
-		err := godotenv.Load("/opt/secrets/.env")
-		if err != nil {
-			log.Fatal("Error deploy loading .env file")
-		}
-	} else {
-		err := godotenv.Load()
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
-
 	e := echo.New()
+	config.InitDB()
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(200, "Hello, World!")
-	})
+	userRepo := &repository.UserRepository{
+		DB: config.DB,
+	}
+	authUC := &usecase.AuthUsecase{UserRepo: userRepo}
+	authHandler := &handlers.AuthHandler{AuthUC: authUC}
 
 	// Group API v1
 	apiV1 := e.Group("/api/v1")
 
-	routers.LoginRoutes(apiV1)
-
-	// Kết nối DB
-	config.InitDB()
+	routers.AuthRoutes(apiV1, authHandler)
 
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
