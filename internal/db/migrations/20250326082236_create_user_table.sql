@@ -11,9 +11,6 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-INSERT INTO users (email, password, full_name, is_verified) 
-VALUES ('test1@example.com', 'admin', 'Test Admin', true);
-
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL -- Admin, Quản lý hợp tác xã, Nông dân, Khách hàng, Kiểm soát viên
