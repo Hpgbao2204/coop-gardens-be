@@ -27,3 +27,5 @@ go.work.sum
 .env
 
 data/
+
+tmp/
