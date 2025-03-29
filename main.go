@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"coop-gardens-be/config"
 	"coop-gardens-be/internal/api/handlers"
@@ -10,6 +11,7 @@ import (
 	"coop-gardens-be/internal/repository"
 	"coop-gardens-be/internal/usecase"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -33,6 +35,14 @@ func main() {
 	cropUsecase := usecase.NewCropUsecase(cropRepo)
 	cropHandler := handlers.NewCropHandler(cropUsecase)
 
+	cld, err := cloudinary.NewFromURL(os.Getenv("CLOUDINARY_URL"))
+	if err != nil {
+		log.Fatal("Error initializing Cloudinary:", err)
+	}
+	// Khởi tạo UploadUsecase
+	uploadUC := usecase.NewUploadImageUsecase(cld)
+	uploadHandler := handlers.NewUploadImageHandler(uploadUC)
+
 	initRoles(config.DB)
 
 	// Group API v1
@@ -43,6 +53,7 @@ func main() {
 	routes.FarmerRoutes(apiV1.Group("/farmer"), userRepo)
 	routes.UserRoutes(apiV1.Group("/user"), userRepo)
 	routes.CropRoutes(apiV1.Group("/crops"), cropHandler, userRepo)
+	routes.UploadImageRoutes(apiV1.Group("/upload"), uploadHandler)
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
 }
