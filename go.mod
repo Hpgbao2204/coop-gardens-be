@@ -3,6 +3,7 @@ module coop-gardens-be
 go 1.24.0
 
 require (
+	github.com/cloudinary/cloudinary-go/v2 v2.9.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.3
@@ -15,7 +16,6 @@ require (
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/cloudinary/cloudinary-go/v2 v2.9.1 // indirect
 	github.com/creasty/defaults v1.7.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect

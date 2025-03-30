@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"coop-gardens-be/config"
 	"coop-gardens-be/internal/api/handlers"
@@ -39,13 +40,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Error initializing Cloudinary:", err)
 	}
-	// Khởi tạo UploadUsecase
 	uploadUC := usecase.NewUploadImageUsecase(cld)
 	uploadHandler := handlers.NewUploadImageHandler(uploadUC)
 
+	seasonRepo := repository.NewSeasonRepository(config.DB)
+	seasonUsecase := usecase.NewSeasonUsecase(seasonRepo)
+	seasonHandler := handlers.NewSeasonHandler(seasonUsecase)
+
 	initRoles(config.DB)
 
-	// Group API v1
 	apiV1 := e.Group("/api/v1")
 
 	routes.AuthRoutes(apiV1, authHandler)
@@ -53,7 +56,9 @@ func main() {
 	routes.FarmerRoutes(apiV1.Group("/farmer"), userRepo)
 	routes.UserRoutes(apiV1.Group("/user"), userRepo)
 	routes.CropRoutes(apiV1.Group("/crops"), cropHandler, userRepo)
+	routes.SeasonRoutes(apiV1.Group("/seasons"), seasonHandler, userRepo)
 	routes.UploadImageRoutes(apiV1.Group("/upload"), uploadHandler)
+	
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
 }
@@ -70,6 +75,39 @@ func initRoles(db *gorm.DB) {
 		if db.Where("name = ?", role.Name).First(&existingRole).RowsAffected == 0 {
 			db.Create(&role)
 			log.Printf("Created role: %s", role.Name)
+		}
+	}
+}
+
+func seedSeasons(db *gorm.DB) {
+	// Check if we have any seasons
+	var count int64
+	db.Model(&models.Season{}).Count(&count)
+
+	// If no seasons, create some examples
+	if count == 0 {
+		now := time.Now()
+		seasons := []models.Season{
+			{
+				Name:      "Spring 2024",
+				StartDate: now,
+				EndDate:   now.AddDate(0, 3, 0), // 3 months later
+				Status:    "Active",
+			},
+			{
+				Name:      "Summer 2024",
+				StartDate: now.AddDate(0, 3, 0),
+				EndDate:   now.AddDate(0, 6, 0), // 6 months from now
+				Status:    "Planning",
+			},
+		}
+
+		for _, season := range seasons {
+			if err := db.Create(&season).Error; err != nil {
+				log.Printf("Error creating seed season: %v", err)
+			} else {
+				log.Printf("Created seed season: %s with ID: %d", season.Name, season.ID)
+			}
 		}
 	}
 }
