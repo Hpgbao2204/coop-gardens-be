@@ -18,5 +18,7 @@ func CropRoutes(g *echo.Group, cropHandler *handlers.CropHandler, userRepo *repo
     
     // GET requests are public (no role restriction)
     g.GET("", cropHandler.GetAllCrops)
+    g.GET(("/season/:season_id/crops"), cropHandler.GetCropsBySeason)
+    g.POST("/season/:season_id/crops", cropHandler.AddCropToSeason, middlewares.RoleMiddleware("Admin", userRepo))
 }
 

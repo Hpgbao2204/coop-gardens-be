@@ -7,19 +7,29 @@ import (
 )
 
 type CropRepository struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func NewCropRepository(db *gorm.DB) *CropRepository {
-	return &CropRepository{db}
+	return &CropRepository{DB: db}
 }
 
 func (r *CropRepository) CreateCrop(crop *models.Crop) error {
-	return r.db.Create(crop).Error
+	return r.DB.Create(crop).Error
 }
 
 func (r *CropRepository) GetAllCrops() ([]models.Crop, error) {
 	var crops []models.Crop
-	err := r.db.Find(&crops).Error
+	err := r.DB.Find(&crops).Error
 	return crops, err
+}
+
+func (r *CropRepository) GetCropsBySeason(seasonID uint) ([]models.Crop, error) {
+	var crops []models.Crop
+	err := r.DB.Where("season_id = ?", seasonID).Find(&crops).Error
+	return crops, err
+}
+
+func (r *CropRepository) AddCropToSeason(crop *models.Crop) error {
+	return r.DB.Create(crop).Error
 }
