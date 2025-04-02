@@ -3,19 +3,16 @@ package main
 import (
 	"log"
 	"os"
-	"time"
 
 	"coop-gardens-be/config"
 	"coop-gardens-be/internal/api/handlers"
 	"coop-gardens-be/internal/api/routes"
-	"coop-gardens-be/internal/models"
 	"coop-gardens-be/internal/repository"
 	"coop-gardens-be/internal/usecase"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -47,7 +44,9 @@ func main() {
 	seasonUsecase := usecase.NewSeasonUsecase(seasonRepo)
 	seasonHandler := handlers.NewSeasonHandler(seasonUsecase)
 
-	initRoles(config.DB)
+	taskRepo := repository.NewTaskRepository(config.DB)
+	taskUsecase := usecase.NewTaskUsecase(taskRepo)
+	taskHandler := handlers.NewTaskHandler(taskUsecase)
 
 	apiV1 := e.Group("/api/v1")
 
@@ -58,56 +57,8 @@ func main() {
 	routes.CropRoutes(apiV1.Group("/crops"), cropHandler, userRepo)
 	routes.SeasonRoutes(apiV1.Group("/seasons"), seasonHandler, userRepo)
 	routes.UploadImageRoutes(apiV1.Group("/upload"), uploadHandler)
-	
+	routes.TaskRoutes(apiV1.Group("/tasks"), taskHandler, userRepo)
+
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
-}
-
-func initRoles(db *gorm.DB) {
-	roles := []models.Role{
-		{Name: "User"},
-		{Name: "Admin"},
-		{Name: "Farmer"},
-	}
-
-	for _, role := range roles {
-		var existingRole models.Role
-		if db.Where("name = ?", role.Name).First(&existingRole).RowsAffected == 0 {
-			db.Create(&role)
-			log.Printf("Created role: %s", role.Name)
-		}
-	}
-}
-
-func seedSeasons(db *gorm.DB) {
-	// Check if we have any seasons
-	var count int64
-	db.Model(&models.Season{}).Count(&count)
-
-	// If no seasons, create some examples
-	if count == 0 {
-		now := time.Now()
-		seasons := []models.Season{
-			{
-				Name:      "Spring 2024",
-				StartDate: now,
-				EndDate:   now.AddDate(0, 3, 0), // 3 months later
-				Status:    "Active",
-			},
-			{
-				Name:      "Summer 2024",
-				StartDate: now.AddDate(0, 3, 0),
-				EndDate:   now.AddDate(0, 6, 0), // 6 months from now
-				Status:    "Planning",
-			},
-		}
-
-		for _, season := range seasons {
-			if err := db.Create(&season).Error; err != nil {
-				log.Printf("Error creating seed season: %v", err)
-			} else {
-				log.Printf("Created seed season: %s with ID: %d", season.Name, season.ID)
-			}
-		}
-	}
 }
