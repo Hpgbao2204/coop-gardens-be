@@ -23,16 +23,19 @@ func main() {
 	e := echo.New()
 	config.InitDB()
 
+	// User auth
 	userRepo := &repository.UserRepository{
 		DB: config.DB,
 	}
 	authUC := &usecase.AuthUsecase{UserRepo: userRepo}
 	authHandler := &handlers.AuthHandler{AuthUC: authUC}
 
+	// Crop
 	cropRepo := repository.NewCropRepository(config.DB)
 	cropUsecase := usecase.NewCropUsecase(cropRepo)
 	cropHandler := handlers.NewCropHandler(cropUsecase)
 
+	// Cloudinary image upload
 	cld, err := cloudinary.NewFromURL(os.Getenv("CLOUDINARY_URL"))
 	if err != nil {
 		log.Fatal("Error initializing Cloudinary:", err)
@@ -40,17 +43,26 @@ func main() {
 	uploadUC := usecase.NewUploadImageUsecase(cld)
 	uploadHandler := handlers.NewUploadImageHandler(uploadUC)
 
+	// Season
 	seasonRepo := repository.NewSeasonRepository(config.DB)
 	seasonUsecase := usecase.NewSeasonUsecase(seasonRepo)
 	seasonHandler := handlers.NewSeasonHandler(seasonUsecase)
 
+	// Task
 	taskRepo := repository.NewTaskRepository(config.DB)
 	taskUsecase := usecase.NewTaskUsecase(taskRepo)
 	taskHandler := handlers.NewTaskHandler(taskUsecase)
 
-	apiV1 := e.Group("/v1") // For auth
-	apiV2 := e.Group("/v2") // For specific features
+	// Inventory
+	inventoryRepo := repository.NewInventoryRepository(config.DB)
+	inventoryUsecase := usecase.NewInventoryUsecase(inventoryRepo)
+	inventoryHandler := handlers.NewInventoryHandler(inventoryUsecase)
 
+	// Define API groups
+	apiV1 := e.Group("/v1") // Auth endpoints
+	apiV2 := e.Group("/v2") // Feature endpoints
+
+	// Register endpoints
 	routes.AuthRoutes(apiV1, authHandler)
 	routes.AdminRoutes(apiV1.Group("/admin"), userRepo)
 	routes.FarmerRoutes(apiV1.Group("/farmer"), userRepo)
@@ -60,6 +72,7 @@ func main() {
 	routes.SeasonRoutes(apiV2.Group("/seasons"), seasonHandler, userRepo)
 	routes.UploadImageRoutes(apiV2.Group("/upload"), uploadHandler)
 	routes.TaskRoutes(apiV2.Group("/tasks"), taskHandler, userRepo)
+	routes.InventoryRoutes(apiV2.Group("/inventory"), inventoryHandler)
 
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
