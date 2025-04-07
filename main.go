@@ -48,16 +48,18 @@ func main() {
 	taskUsecase := usecase.NewTaskUsecase(taskRepo)
 	taskHandler := handlers.NewTaskHandler(taskUsecase)
 
-	apiV1 := e.Group("/api/v1")
+	apiV1 := e.Group("/v1") // For auth
+	apiV2 := e.Group("/v2") // For specific features
 
 	routes.AuthRoutes(apiV1, authHandler)
 	routes.AdminRoutes(apiV1.Group("/admin"), userRepo)
 	routes.FarmerRoutes(apiV1.Group("/farmer"), userRepo)
 	routes.UserRoutes(apiV1.Group("/user"), userRepo)
-	routes.CropRoutes(apiV1.Group("/crops"), cropHandler, userRepo)
-	routes.SeasonRoutes(apiV1.Group("/seasons"), seasonHandler, userRepo)
-	routes.UploadImageRoutes(apiV1.Group("/upload"), uploadHandler)
-	routes.TaskRoutes(apiV1.Group("/tasks"), taskHandler, userRepo)
+
+	routes.CropRoutes(apiV2.Group("/crops"), cropHandler, userRepo)
+	routes.SeasonRoutes(apiV2.Group("/seasons"), seasonHandler, userRepo)
+	routes.UploadImageRoutes(apiV2.Group("/upload"), uploadHandler)
+	routes.TaskRoutes(apiV2.Group("/tasks"), taskHandler, userRepo)
 
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
