@@ -63,6 +63,10 @@ func main() {
 	blogUsecase := usecase.NewBlogUsecase(blogRepo)
 	blogHandler := handlers.NewBlogHandler(blogUsecase)
 
+	poRepo := repository.NewProductOrderRepository(config.DB)
+	poUsecase := usecase.NewProductOrderUsecase(poRepo)
+	poHandler := handlers.NewProductOrderHandler(poUsecase)
+
 	// Define API groups
 	apiV1 := e.Group("/v1") // Auth endpoints
 	apiV2 := e.Group("/v2") // Feature endpoints
@@ -79,6 +83,7 @@ func main() {
 	routes.TaskRoutes(apiV2.Group("/tasks"), taskHandler, userRepo)
 	routes.InventoryRoutes(apiV2.Group("/inventory"), inventoryHandler)
 	routes.BlogRoutes(apiV2.Group("/blog"), blogHandler)
+	routes.ProductOrderRoutes(apiV2.Group("/product-order"), poHandler)
 
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
