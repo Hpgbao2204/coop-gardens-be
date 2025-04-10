@@ -11,7 +11,7 @@ COPY . .
 RUN go mod tidy && go build -o main main.go
 
 # Đảm bảo file có quyền thực thi
-RUN chmod +x /app/main
+RUN chmod +x main
 
 # Chạy ứng dụng
 CMD ["/app/main"]
