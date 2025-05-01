@@ -73,6 +73,11 @@ func main() {
 	dashboardUsecase := usecase.NewDashboardUsecase(dashboardRepo)
 	dashboardHandler := handlers.NewDashboardHandler(dashboardUsecase)
 
+	// Crop Growth Log
+	cropGrowthLogRepo := repository.NewCropGrowthLogRepository(config.DB)
+	cropGrowthLogUsecase := usecase.NewCropGrowthLogUsecase(cropGrowthLogRepo, cropRepo)
+	cropGrowthLogHandler := handlers.NewCropGrowthLogHandler(cropGrowthLogUsecase)
+
 	// Define API groups
 	apiV1 := e.Group("/v1") // Auth endpoints
 	apiV2 := e.Group("/v2") // Feature endpoints
@@ -91,7 +96,9 @@ func main() {
 	routes.BlogRoutes(apiV2.Group("/blog"), blogHandler)
 	routes.ProductOrderRoutes(apiV2.Group("/product-order"), poHandler)
 	routes.DashboardRoutes(apiV2.Group("/dashboard"), dashboardHandler)
+	routes.CropGrowthLogRoutes(apiV2.Group("/crop-growth-logs"), cropGrowthLogHandler, userRepo)
 
+	
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
 }
