@@ -9,9 +9,19 @@ CREATE TABLE crops (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT FROM information_schema.columns 
+        WHERE table_name = 'crops' AND column_name = 'growth_stage'
+    ) THEN
+        ALTER TABLE crops ADD COLUMN growth_stage VARCHAR(255);
+    END IF;
+END $$;
+
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+ALTER TABLE crops DROP COLUMN IF EXISTS growth_stage;
 -- +goose StatementEnd
