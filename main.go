@@ -16,10 +16,10 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️ .env file not found — using environment variables from Render")
 	}
+	
 	e := echo.New()
 	config.InitDB()
 
@@ -88,7 +88,7 @@ func main() {
 	routes.FarmerRoutes(apiV1.Group("/farmer"), userRepo)
 	routes.UserRoutes(apiV1.Group("/user"), userRepo)
 
-	routes.CropRoutes(apiV2.Group("/crops"), cropHandler, userRepo)
+	routes.CropRoutes(apiV2.Group("/crops"), cropHandler, userRepo, cropGrowthLogHandler)
 	routes.SeasonRoutes(apiV2.Group("/seasons"), seasonHandler, userRepo)
 	routes.UploadImageRoutes(apiV2.Group("/upload"), uploadHandler)
 	routes.TaskRoutes(apiV2.Group("/tasks"), taskHandler, userRepo)
@@ -96,7 +96,7 @@ func main() {
 	routes.BlogRoutes(apiV2.Group("/blog"), blogHandler)
 	routes.ProductOrderRoutes(apiV2.Group("/product-order"), poHandler)
 	routes.DashboardRoutes(apiV2.Group("/dashboard"), dashboardHandler)
-	routes.CropGrowthLogRoutes(apiV2.Group("/crop-growth-logs"), cropGrowthLogHandler, userRepo)
+	routes.CropGrowthLogRoutes(apiV2.Group("/crop-growth-logs"), cropGrowthLogHandler)
 
 	
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
