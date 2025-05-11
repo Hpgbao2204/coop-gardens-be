@@ -18,7 +18,7 @@ CREATE TABLE crop_growth_logs (
         ON UPDATE CASCADE
 );
 
-ALTER TABLE crops ADD COLUMN growth_stage VARCHAR(255);
+-- ALTER TABLE crops ADD COLUMN growth_stage VARCHAR(255);
 -- +goose StatementEnd
 
 -- +goose Down

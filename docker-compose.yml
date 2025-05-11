@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: coop_gardens
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: RIdwIMB3COccKdiSL6Yh5092ky3jDLFz
       POSTGRES_DB: coop_gardens
     ports:
       - "5432:5432"
