@@ -21,11 +21,12 @@ CREATE TABLE user_roles (
     role_id INT REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
+INSERT INTO roles (name) VALUES ('User'), ('Admin'), ('Farmer');
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE user_roles;
-DROP TABLE users;
-DROP TABLE roles;
+DROP TABLE IF EXISTS user_roles CASCADE;
+DROP TABLE IF EXISTS roles CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 -- +goose StatementEnd
