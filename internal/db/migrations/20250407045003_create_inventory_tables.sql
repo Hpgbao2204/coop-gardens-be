@@ -36,6 +36,7 @@ CREATE TABLE inventory_transactions (
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS inventory_transactions;
 DROP TABLE IF EXISTS crop_inventories;
 DROP TABLE IF EXISTS inventories;
