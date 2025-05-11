@@ -1,6 +1,8 @@
-dsn=postgres://coop_gardens:password@172.17.0.1:5432/coop_gardens?sslmode=disable
+include .env
 
+dsn=${GOOSE_DBSTRING}
 migrationDir=internal/db/migrations
+
 up:
 	@GOOSE_DRIVER=postgres GOOSE_DBSTRING=${dsn} goose -dir=${migrationDir} up
 down:
