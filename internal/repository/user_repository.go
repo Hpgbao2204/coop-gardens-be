@@ -32,6 +32,21 @@ func (r *UserRepository) CreateUser(user *models.User) error {
 	return nil
 }
 
+func (r *UserRepository) CheckUserExists(email string) (bool, error) {
+	var count int64
+	err := r.DB.Model(&models.User{}).Where("email = ?", email).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.DB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *UserRepository) GetUserRoles(userID string) ([]models.Role, error) {
 	var roles []models.Role
 	if err := r.DB.Joins("JOIN user_roles ON user_roles.role_id = roles.id").
