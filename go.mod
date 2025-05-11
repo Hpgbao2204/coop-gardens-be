@@ -12,6 +12,8 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
+require golang.org/x/time v0.8.0 // indirect
+
 require (
 	github.com/creasty/defaults v1.7.0 // indirect
 	github.com/google/uuid v1.5.0 // indirect

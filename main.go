@@ -13,14 +13,22 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️ .env file not found — using environment variables from Render")
 	}
-	
+
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"https://coop-gardens-be-no2t.onrender.com", "http://localhost:3000"},
+		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.OPTIONS},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowCredentials: true,
+	}))
 	config.InitDB()
 
 	// User auth
@@ -98,7 +106,6 @@ func main() {
 	routes.DashboardRoutes(apiV2.Group("/dashboard"), dashboardHandler)
 	routes.CropGrowthLogRoutes(apiV2.Group("/crop-growth-logs"), cropGrowthLogHandler)
 
-	
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
 	e.Start(":8080")
 }
