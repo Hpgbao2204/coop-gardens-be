@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type AuthUsecase struct {
@@ -49,14 +50,27 @@ func (u *AuthUsecase) Signup(user *models.User, roles []string) error {
 	return nil
 }
 
-func (uc *AuthUsecase) SignupWithRole(user *models.User, role string) error {
-	// Check if user already exists
-	exists, err := uc.UserRepo.CheckUserExists(user.Email)
-	if err != nil {
-		return err
+func (uc *AuthUsecase) SignupWithRole(user *models.User, roleName string) error {
+	var existingUser models.User
+	result := uc.UserRepo.DB.Where("email = ?", user.Email).First(&existingUser)
+
+	if result.Error == nil {
+		// Email đã tồn tại
+		return errors.New("email already exists")
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		// Lỗi database khác
+		return result.Error
 	}
-	if exists {
-		return errors.New("user already exists")
+
+	// Tiếp tục với phần Role
+	var role models.Role
+	result = uc.UserRepo.DB.Where("name = ?", roleName).First(&role)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		// Role không tồn tại - đây có thể là nguồn gốc của lỗi
+		return errors.New("role not found: " + roleName)
+	} else if result.Error != nil {
+		return result.Error
 	}
 
 	// Hash the password before saving
@@ -72,7 +86,7 @@ func (uc *AuthUsecase) SignupWithRole(user *models.User, role string) error {
 	}
 
 	// Assign role to user
-	if err := uc.UserRepo.AssignRoleToUser(user.ID, role); err != nil {
+	if err := uc.UserRepo.AssignRoleToUser(user.ID, roleName); err != nil {
 		return err
 	}
 
