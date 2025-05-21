@@ -90,6 +90,14 @@ func main() {
 	apiV1 := e.Group("/v1") // Auth endpoints
 	apiV2 := e.Group("/v2") // Feature endpoints
 
+	auth := apiV1.Group("/auth")
+	auth.POST("/signup", authHandler.Signup)
+	auth.POST("/login", authHandler.Login)
+
+	// Common routes - chỉ cần JWT, không cần role cụ thể
+	common := apiV1.Group("/common")
+	routes.CommonRoutes(common, userRepo)
+
 	// Register endpoints
 	routes.AuthRoutes(apiV1, authHandler)
 	routes.AdminRoutes(apiV1.Group("/admin"), userRepo)
