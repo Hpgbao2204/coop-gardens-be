@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"coop-gardens-be/internal/models"
 	"coop-gardens-be/internal/repository"
 	"net/http"
 
@@ -30,5 +31,46 @@ func (h *UserHandler) GetUserProfile(c echo.Context) error {
 	// Loại bỏ password khỏi response
 	user.Password = ""
 
-	return c.JSON(http.StatusOK, user)
+	// Tạo response với thông tin vai trò và dashboard URL
+	type RoleInfo struct {
+		ID   uint   `json:"id"`
+		Name string `json:"name"`
+		URL  string `json:"dashboard_url"`
+	}
+
+	type ProfileResponse struct {
+		User  *models.User `json:"user"`
+		Roles []RoleInfo   `json:"roles"`
+	}
+
+	response := ProfileResponse{
+		User:  user,
+		Roles: make([]RoleInfo, 0),
+	}
+
+	baseURL := c.Scheme() + "://" + c.Request().Host
+
+	// Thêm thông tin về vai trò và URL tương ứng
+	for _, role := range user.Roles {
+		roleInfo := RoleInfo{
+			ID:   role.ID,
+			Name: role.Name,
+		}
+
+		// Tạo URL dựa vào role
+		switch role.Name {
+		case "Admin":
+			roleInfo.URL = baseURL + "/v1/admin/dashboard"
+		case "Farmer":
+			roleInfo.URL = baseURL + "/v1/farmer/dashboard"
+		case "User":
+			roleInfo.URL = baseURL + "/v1/user/dashboard"
+		default:
+			roleInfo.URL = baseURL + "/v1/user/profile"
+		}
+
+		response.Roles = append(response.Roles, roleInfo)
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
