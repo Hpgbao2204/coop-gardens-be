@@ -47,6 +47,15 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *UserRepository) GetUserByID(userID string) (*models.User, error) {
+	var user models.User
+	err := r.DB.Preload("Roles").Where("id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (r *UserRepository) GetUserRoles(userID string) ([]models.Role, error) {
 	var roles []models.Role
 	if err := r.DB.Joins("JOIN user_roles ON user_roles.role_id = roles.id").
