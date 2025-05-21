@@ -18,6 +18,18 @@ func UserRoutes(g *echo.Group, userRepo *repository.UserRepository) {
 
 	g.GET("/profile", userHandler.GetUserProfile)
 
+	// Thêm endpoint dashboard cho người dùng
+	g.GET("/dashboard", func(c echo.Context) error {
+		// Lấy user ID từ context (đã được đặt bởi JWTMiddleware)
+		userID, _ := c.Get("user_id").(string)
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "User dashboard",
+			"user_id": userID,
+			"role":    "User",
+		})
+	})
+
 	// More user specific routes
 	g.GET("/products", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
