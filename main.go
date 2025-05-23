@@ -24,7 +24,7 @@ func main() {
 	e := echo.New()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"https://coop-gardens-be-no2t.onrender.com", "http://localhost:3000"},
+		AllowOrigins:     []string{"https://coop-gardens-be-no2t.onrender.com", "http://localhost:3000", "https://coop-gardens-fe-git-fork-monui-0390d8-giabaos-projects-4c79e1a0.vercel.app"},
 		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE, echo.OPTIONS},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowCredentials: true,
