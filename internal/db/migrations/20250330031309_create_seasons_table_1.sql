@@ -37,6 +37,11 @@ BEGIN
 END $$;
 -- +goose StatementEnd
 
+INSERT INTO seasons (name, start_date, end_date, status) VALUES
+('Mùa Xuân 2025', '2025-02-01 00:00:00', '2025-04-30 23:59:59', 'Ongoing'),
+('Mùa Hè 2025', '2025-05-01 00:00:00', '2025-07-31 23:59:59', 'Planning'),
+('Mùa Thu 2025', '2025-08-01 00:00:00', '2025-10-31 23:59:59', 'Planning'),
+('Mùa Đông 2025', '2025-11-01 00:00:00', '2025-01-31 23:59:59', 'Planned');
 -- +goose Down
 -- +goose StatementBegin
 ALTER TABLE crops DROP CONSTRAINT IF EXISTS fk_crops_season;

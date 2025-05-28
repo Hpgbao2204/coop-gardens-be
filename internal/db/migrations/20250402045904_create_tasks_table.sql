@@ -33,6 +33,18 @@ BEGIN
 END $$;
 -- +goose StatementEnd
 
+
+-- Thêm dữ liệu mẫu vào bảng tasks
+INSERT INTO tasks (title, description, status, assigned_to, season_id) VALUES
+('Kiểm tra độ ẩm đất', 'Đo độ ẩm đất để đảm bảo đủ nước cho cây lúa', 'In Progress', NULL, 1),
+('Bón phân cho ngô', 'Bón phân hữu cơ cho cây ngô vào giai đoạn sinh trưởng', 'Pending', NULL, 2),
+('Thu hoạch cà phê', 'Thu hoạch cà phê sau khi chín', 'Pending', NULL, 4);
+
+-- Gán cây trồng cho các nhiệm vụ
+INSERT INTO task_crops (task_id, crop_id) VALUES
+(1, 1),  -- Kiểm tra độ ẩm cho Lúa
+(2, 2),  -- Bón phân cho Ngô
+(3, 8);  -- Thu hoạch cà phê
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS task_crops CASCADE;
