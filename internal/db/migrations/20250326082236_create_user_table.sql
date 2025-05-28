@@ -18,9 +18,10 @@ INSERT INTO users (email, password, full_name, is_verified, google_id) VALUES
 
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL -- Admin, Quản lý hợp tác xã, Nông dân, Khách hàng, Kiểm soát viên
+    name VARCHAR(50) UNIQUE NOT NULL 
 );
 
+INSERT INTO roles (name) VALUES ('User'), ('Admin'), ('Farmer');
 CREATE TABLE user_roles (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     role_id INT REFERENCES roles(id) ON DELETE CASCADE,
@@ -34,7 +35,6 @@ WHERE (u.email = 'admin@example.com' AND r.name = 'Admin')
    OR (u.email = 'farmer@example.com' AND r.name = 'Nông dân')
    OR (u.email = 'customer@example.com' AND r.name = 'Khách hàng')
 
-INSERT INTO roles (name) VALUES ('User'), ('Admin'), ('Farmer');
 -- +goose StatementEnd
 
 -- +goose Down
