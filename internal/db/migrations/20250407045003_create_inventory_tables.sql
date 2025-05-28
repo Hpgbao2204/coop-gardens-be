@@ -12,6 +12,10 @@ CREATE TABLE inventories (
     CONSTRAINT fk_inventories_users FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
+INSERT INTO inventories (name, category, quantity, unit, created_by) VALUES
+('Phân bón NPK', 'Phân bón', 500, 'Kg', (SELECT id FROM users WHERE email = 'admin@example.com')),
+('Hạt giống lúa', 'Hạt giống', 10000, 'Cây', (SELECT id FROM users WHERE email = 'farmer@example.com')),
+
 CREATE TABLE crop_inventories (
     id SERIAL PRIMARY KEY,
     crop_id INT NOT NULL,
@@ -21,6 +25,11 @@ CREATE TABLE crop_inventories (
     CONSTRAINT fk_cropinventories_inventories FOREIGN KEY (inventory_id) REFERENCES inventories(id) ON DELETE CASCADE,
     CONSTRAINT uq_crop_inventory UNIQUE (crop_id, inventory_id)
 );
+-- Thêm dữ liệu mẫu vào bảng crop_inventories
+INSERT INTO crop_inventories (crop_id, inventory_id, quantity) VALUES
+(1, 1, 300),  -- Lúa sử dụng phân bón NPK
+(2, 2, 5000),  -- Ngô sử dụng hạt giống lúa
+
 
 CREATE TABLE inventory_transactions (
     id SERIAL PRIMARY KEY,
@@ -32,6 +41,11 @@ CREATE TABLE inventory_transactions (
     CONSTRAINT fk_transactions_inventory FOREIGN KEY (inventory_id) REFERENCES inventories(id) ON DELETE CASCADE,
     CONSTRAINT fk_transactions_users FOREIGN KEY (performed_by) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Thêm dữ liệu mẫu vào bảng inventory_transactions
+INSERT INTO inventory_transactions (inventory_id, type, quantity, performed_by) VALUES
+(1, 'import', 200, (SELECT id FROM users WHERE email = 'admin@example.com')),
+(2, 'export', 1000, (SELECT id FROM users WHERE email = 'farmer@example.com')),
 -- +goose StatementEnd
 
 -- +goose Down

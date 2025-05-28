@@ -46,7 +46,21 @@ BEGIN
     END IF;
 END $$;
 -- +goose StatementEnd
+INSERT INTO blogs (title, content, author_id) VALUES
+('Cách chăm sóc lúa mùa hè', 'Bài viết về cách chăm sóc lúa trong mùa hè để đạt năng suất cao.', (SELECT id FROM users WHERE email = 'admin@example.com')),
+('Sử dụng phân bón NPK hiệu quả', 'Hướng dẫn cách sử dụng phân bón NPK để tăng trưởng cây trồng.', (SELECT id FROM users WHERE email = 'farmer@example.com')),
+('Kiểm soát sâu bệnh mùa vụ', 'Những biện pháp kiểm soát sâu bệnh hiệu quả cho cây trồng.', (SELECT id FROM users WHERE email = 'farmer@example.com'));
+-- Thêm dữ liệu mẫu cho bảng comments
+INSERT INTO comments (blog_id, author_id, content) VALUES
+(1, (SELECT id FROM users WHERE email = 'customer@example.com'), 'Bài viết rất hữu ích, cảm ơn!'),
+(2, (SELECT id FROM users WHERE email = 'admin@example.com'), 'Đúng rồi, phân bón NPK rất quan trọng.'),
+(3, (SELECT id FROM users WHERE email = 'farmer@example.com'), 'Mình cũng hay dùng thuốc trừ sâu theo cách này.');
 
+-- Thêm dữ liệu mẫu cho bảng reviews
+INSERT INTO reviews (inventory_id, user_id, rating, comment) VALUES
+(1, (SELECT id FROM users WHERE email = 'farmer@example.com'), 5, 'Chất lượng tốt, rất hài lòng.'),
+(2, (SELECT id FROM users WHERE email = 'farmer@example.com'), 4, 'Hạt giống tốt, tỷ lệ nảy mầm cao.'),
+(3, (SELECT id FROM users WHERE email = 'admin@example.com'), 3, 'Cần cải thiện chất lượng thuốc.');
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS reviews CASCADE;
