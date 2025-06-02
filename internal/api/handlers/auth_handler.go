@@ -57,15 +57,21 @@ func (h *AuthHandler) Signup(c echo.Context) error {
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var req AuthLoginRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, "Invalid request")
-	}
+    var req AuthLoginRequest
+    if err := c.Bind(&req); err != nil {
+        return c.JSON(http.StatusBadRequest, "Invalid request")
+    }
 
-	token, err := h.AuthUC.Login(req.Email, req.Password)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
-	}
+    // Validate required fields
+    if req.Email == "" || req.Password == "" {
+        return c.JSON(http.StatusBadRequest, "Email và mật khẩu là bắt buộc")
+    }
 
-	return c.JSON(http.StatusOK, map[string]string{"token": token})
+    token, err := h.AuthUC.Login(req.Email, req.Password)
+    if err != nil {
+        return c.JSON(http.StatusUnauthorized, err.Error())
+    }
+
+    return c.JSON(http.StatusOK, map[string]string{"token": token})
 }
+
