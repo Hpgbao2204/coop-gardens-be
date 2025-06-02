@@ -9,13 +9,11 @@ import (
 	"coop-gardens-be/internal/api/routes"
 	"coop-gardens-be/internal/repository"
 	"coop-gardens-be/internal/usecase"
-	"coop-gardens-be/internal/api/validators"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/go-playground/validator/v10"
 )
 
 func main() {
@@ -24,7 +22,6 @@ func main() {
 	}
 
 	e := echo.New()
-
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"https://coop-gardens-be-no2t.onrender.com", "http://localhost:3000", "https://coop-gardens-fe-git-fork-monui-0390d8-giabaos-projects-4c79e1a0.vercel.app"},
@@ -118,6 +115,5 @@ func main() {
 	routes.CropGrowthLogRoutes(apiV2.Group("/crop-growth-logs"), cropGrowthLogHandler)
 
 	log.Println("🚀 Server đang chạy tại: http://localhost:8080")
-	e.Validator = &validators.CustomValidator{Validator: validator.New()}
 	e.Start(":8080")
 }
