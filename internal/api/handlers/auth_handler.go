@@ -74,4 +74,3 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
     return c.JSON(http.StatusOK, map[string]string{"token": token})
 }
-

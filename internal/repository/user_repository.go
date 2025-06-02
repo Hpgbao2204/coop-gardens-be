@@ -39,12 +39,15 @@ func (r *UserRepository) CheckUserExists(email string) (bool, error) {
 }
 
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
-	var user models.User
-	err := r.DB.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
+    if email == "" {
+        return nil, errors.New("email is required")
+    }
+    var user models.User
+    result := r.DB.Where("email = ?", email).First(&user)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return &user, nil
 }
 
 func (r *UserRepository) GetUserByID(userID string) (*models.User, error) {
